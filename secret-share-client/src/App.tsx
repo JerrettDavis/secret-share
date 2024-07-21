@@ -8,13 +8,15 @@ import ManagementPage from './pages/ManagementPage';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+const apiBaseUrl = 'http://localhost:5000';
+
 const App: React.FC = () => {
     return (
         <ThemeUIProvider theme={theme}>
             <Router>
                 <div className="App">
                     <Routes>
-                        <Route path="/" element={<EncryptForm />} />
+                        <Route path="/" element={<EncryptForm apiURL={apiBaseUrl} />} />
                         <Route path="/retrieve/:identifier" element={<RetrieveForm />} />
                         <Route path="/manage/:creatorIdentifier" element={<ManagementPage />} />
                     </Routes>
