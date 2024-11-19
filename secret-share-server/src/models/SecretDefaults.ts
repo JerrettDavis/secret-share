@@ -21,7 +21,9 @@ export class SecretDefaults implements ISecretDefaults {
      * @constant
      * @default 1
      */
-    public maxViews: number = !!process.env.MAX_VIEWS ? +process.env.MAX_VIEWS : 1;
+    public maxViews: number = !!process.env.MAX_VIEWS && !Number.isNaN(+process.env.MAX_VIEWS)
+        ? +process.env.MAX_VIEWS
+        : 1;
 
     /**
      * The default length of time before a secret expires.
@@ -32,8 +34,9 @@ export class SecretDefaults implements ISecretDefaults {
      * @description 604800000 milliseconds = 1 week
      */
     public defaultExpirationLength: number = !!process.env.DEFAULT_EXPIRATION_LENGTH
-        ? +process.env.DEFAULT_EXPIRATION_LENGTH
-        : 604800000;
+        && !Number.isNaN(+process.env.DEFAULT_EXPIRATION_LENGTH)
+            ? +process.env.DEFAULT_EXPIRATION_LENGTH
+            : 604800000;
 
     /**
      * Whether to destroy the secret after a failed access attempt.
@@ -41,5 +44,5 @@ export class SecretDefaults implements ISecretDefaults {
      * @type {boolean}
      * @default false
      */
-    public destroyOnFailedAccess: boolean = !!process.env.DESTROY_ON_FAILED_ACCESS;
+    public destroyOnFailedAccess: boolean = process.env.DESTROY_ON_FAILED_ACCESS === 'true';
 }

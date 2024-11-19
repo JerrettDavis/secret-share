@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { appState, ServiceState } from '../app';
+import { appState, ServiceState } from 'src/appState';
 
 export const connectToDatabase = async (MONGO_URI: string) => {
     console.log('<DB> Connecting to MongoDB...');

@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "rsbuild dev --open",
+    "docker": "rsbuild dev",
     "build": "rsbuild build",
     "preview": "rsbuild preview",
     "generate-api-client": "openapi --input ./swagger.json --output ./generated --name ApiClient"

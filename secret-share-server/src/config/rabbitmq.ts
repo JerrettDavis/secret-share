@@ -1,5 +1,5 @@
 import { rabbitMQ } from '@services/rabbitmq';
-import { appState, ServiceState } from '../app';
+import { appState, ServiceState } from 'src/appState';
 
 export const connectToRabbitMQ = async (): Promise<void> => {
     console.log('<MQ> Connecting to RabbitMQ...');

@@ -2,7 +2,7 @@ import express from 'express';
 import secretRoutes from './secretRoutes';
 import healthRoutes from './healthRoutes';
 import swaggerUi from 'swagger-ui-express';
-import specs from '../openapi';
+import specs from 'src/openapi';
 
 const router = express.Router();
 

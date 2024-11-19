@@ -4,7 +4,12 @@ import { pluginReact } from '@rsbuild/plugin-react';
 export default defineConfig({
   plugins: [pluginReact()],
   html: {
-    title: 'SecretShare'
+    title: 'SecretShare',
+    favicon: './src/public/favicon.ico',
+    appIcon: './src/public/apple-touch-icon.png',
+    meta: {
+      description: 'A simple secrets sharing app'
+    }
   },
   server: {
     port: 3000

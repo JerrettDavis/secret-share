@@ -7,6 +7,10 @@ services:
     volumes:
       - mongo-data-dev:/data/db
 
+  rabbitmq-dev:
+    image: rabbitmq:4.0-management
+    container_name: rabbitmq-dev
+
   secret-share-server-dev:
     build:
       context: ./secret-share-server
@@ -19,6 +23,7 @@ services:
       - '5000:5000'
     volumes:
       - ./secret-share-server:/app
+      - server_node_modules:/app/node_modules
     depends_on:
       - mongo-dev
 
@@ -29,12 +34,16 @@ services:
     container_name: secret-share-client-dev
     environment:
       - API_URL=http://secret-share-server-dev:5000
+      - RABBITMQ_HOST=rabbitmq-dev
     ports:
       - '5001:3000'
     volumes:
       - ./secret-share-client:/app
+      - client_node_modules:/app/node_modules
     depends_on:
       - secret-share-server-dev
 
 volumes:
   mongo-data-dev:
+  client_node_modules:
+  server_node_modules:

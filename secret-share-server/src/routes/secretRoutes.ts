@@ -121,6 +121,7 @@ const router = express.Router();
  * /api/secrets/:
  *   post:
  *     summary: Create a new secret
+ *     tags: [Secrets]
  *     requestBody:
  *       required: true
  *       content:
@@ -197,6 +198,7 @@ router.post(
  * /api/secrets/defaults:
  *   get:
  *     summary: Get the default settings for secrets
+ *     tags: [Secrets]
  *     responses:
  *       200:
  *         description: Default secret settings retrieved successfully
@@ -224,6 +226,7 @@ router.get(
  * /api/secrets/{identifier}:
  *   get:
  *     summary: Retrieve a secret by its identifier
+ *     tags: [Secrets]
  *     parameters:
  *       - in: path
  *         name: identifier
@@ -288,14 +291,16 @@ router.get(
  * @swagger
  * /api/secrets/{identifier}:
  *   delete:
- *     summary: Delete a secret by its identifier
+ *     summary: Delete a given secret
+ *     description: Delete a secret by its creator identifier. This action is irreversible.
+ *     tags: [Secrets]
  *     parameters:
  *       - in: path
  *         name: identifier
  *         schema:
  *           type: string
  *         required: true
- *         description: The identifier of the secret
+ *         description: The creator identifier of the secret
  *     responses:
  *       200:
  *         description: Secret deleted successfully
@@ -349,13 +354,15 @@ router.delete(
  * /api/secrets/logs/{identifier}:
  *   get:
  *     summary: Get the access logs for a secret
+ *     description: Retrieve the access logs for a secret by its creator identifier
+ *     tags: [Secrets]
  *     parameters:
  *       - in: path
  *         name: identifier
  *         schema:
  *           type: string
  *         required: true
- *         description: The identifier of the secret
+ *         description: The creator identifier of the secret
  *     responses:
  *       200:
  *         description: Access logs retrieved successfully
@@ -398,5 +405,26 @@ router.get(
     res.send({ success: true, data: { logs: secret.accessLogs || [] } });
   }
 );
+
+
+router.get(
+    '/stats/:creatorIdentifier',
+    async (req: Request, res: Response) => {
+        const { creatorIdentifier } = req.params;
+        const secret = await Secret.findOne({ creatorIdentifier });
+
+        if (!secret) {
+            return res.status(404).send({ success: false, error: 'Secret not found' });
+        }
+
+
+        const logs = secret.accessLogs || [];
+        const reportedViews = secret.currentViews;
+        const totalViews = logs.length;
+        const uniqueViews = new Set(logs.map(log => log.ipAddress)).size;
+
+        res.send({ success: true, data: { reportedViews, totalViews, uniqueViews } });
+    }
+)
 
 export default router;
