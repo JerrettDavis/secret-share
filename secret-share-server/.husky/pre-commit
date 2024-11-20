@@ -1,2 +1,2 @@
 #!/bin/sh
-cd ./secret-share-server && npm run generate-swagger && git add ./swagger.json
+#cd ./secret-share-server && npm run generate-swagger && git add ./swagger.json

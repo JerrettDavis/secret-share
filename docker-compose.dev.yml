@@ -2,8 +2,8 @@ services:
   mongo-dev:
     image: mongo:latest
     container_name: mongo-dev
-    ports:
-      - '27017:27017'
+    #ports: # comment and uncomment if direct mongodb data access is needed
+    #  - '27017:27017'
     volumes:
       - mongo-data-dev:/data/db
 
@@ -19,6 +19,8 @@ services:
     environment:
       - PORT=5000
       - MONGO_URI=mongodb://mongo-dev:27017/secret-share
+      - RABBITMQ_HOST=rabbitmq-dev
+      - CLIENT_ORIGN=http://localhost:5001
     ports:
       - '5000:5000'
     volumes:
