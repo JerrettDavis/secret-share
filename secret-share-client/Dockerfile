@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # Use the official NGINX image to serve the built app
-FROM nginx:1.31.1-alpine
+FROM nginx:1.31.2-alpine
 
 # Copy the built app from the previous stage to the NGINX html folder
 COPY --from=build /app/dist /usr/share/nginx/html
