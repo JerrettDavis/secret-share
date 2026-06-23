@@ -91,10 +91,10 @@ export const validateSecret = async (
 
     // If all validations pass, save a successful access log and attach the secret to the request
     await saveAccessLog(true, secret);
+    req.body = req.body ?? {};
     req.body.secret = secret;
     next();
   } catch (error: any) {
-    console.error('[validateSecret] Error:', error);
     res.status(500).send({ success: false, error });
   }
 };
