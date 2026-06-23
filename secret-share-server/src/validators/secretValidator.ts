@@ -94,6 +94,7 @@ export const validateSecret = async (
     req.body.secret = secret;
     next();
   } catch (error: any) {
+    console.error('[validateSecret] Error:', error);
     res.status(500).send({ success: false, error });
   }
 };
