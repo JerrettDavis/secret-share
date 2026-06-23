@@ -6,7 +6,10 @@ export default defineConfig({
   html: {
     title: 'SecretShare',
     favicon: './src/public/favicon.ico',
-    appIcon: './src/public/apple-touch-icon.png',
+    appIcon: {
+      name: 'SecretShare',
+      icons: [{ src: './src/public/apple-touch-icon.png', size: 180 }],
+    },
     meta: {
       description: 'A simple secrets sharing app'
     }

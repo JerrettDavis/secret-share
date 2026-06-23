@@ -14,6 +14,7 @@
     "emitDecoratorMetadata": true,
     "skipLibCheck": true,
     "outDir": "./dist",
+    "rootDir": "./src",
     "paths": {
       "src/*": ["./src/*"],
       "@models/*": ["./src/models/*"],

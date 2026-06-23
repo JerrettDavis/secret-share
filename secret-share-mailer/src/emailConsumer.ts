@@ -1,4 +1,4 @@
-import { Channel, Connection, connect } from "amqplib";
+import { Channel, ChannelModel, connect } from "amqplib";
 import sendEmail from "./emailer";
 import Redis from "ioredis";
 import { setTimeout } from "timers/promises";
@@ -57,7 +57,7 @@ type ConnectResult = {
 
 const connectToRabbitMQ = (connectionString: string): Promise<ConnectResult> =>
     connect(connectionString)
-        .then((connection: Connection) => connection.createChannel())
+        .then((channelModel: ChannelModel) => channelModel.createChannel())
         .then((channel: Channel) => ({ channel, error: null }))
         .catch((error: any) => ({ channel: null, error }));
 

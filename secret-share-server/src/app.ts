@@ -16,7 +16,7 @@ const corsOptions = {
     credentials: true, // Allow cookies if needed
 };
 app.use(cors(corsOptions));
-app.options("*", cors());
+app.options("/{*path}", cors());
 app.use(favicon(path.join(__dirname, "public", "favicon.ico")));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());

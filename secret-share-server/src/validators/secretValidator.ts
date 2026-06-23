@@ -16,7 +16,7 @@ export const validateSecret = async (
     secret?: ISecret | null | undefined
   ) => {
     const log = new SecretAccessLog(
-      req.ip!,
+      req.ip ?? "unknown",
       new Date(),
       accessGranted,
       req.get("referrer"),
@@ -91,6 +91,7 @@ export const validateSecret = async (
 
     // If all validations pass, save a successful access log and attach the secret to the request
     await saveAccessLog(true, secret);
+    req.body = req.body ?? {};
     req.body.secret = secret;
     next();
   } catch (error: any) {
