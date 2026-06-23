@@ -12,6 +12,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "skipLibCheck": true,
+    "types": ["node", "jest"],
     "outDir": "./dist",
     "paths": {
       "src/*": ["./src/*"],
@@ -23,5 +24,6 @@
       "@routes/*": ["./src/routes/*"],
       "@services/*": ["./src/services/*"],
     }
-  }
+  },
+  "exclude": ["node_modules", "dist", "tests"]
 }

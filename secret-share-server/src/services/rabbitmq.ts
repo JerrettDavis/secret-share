@@ -1,4 +1,4 @@
-import amqplib, { Connection, Channel } from 'amqplib';
+import amqplib, { ChannelModel, Channel } from 'amqplib';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -10,13 +10,13 @@ if (!RABBITMQ_HOST || !RABBITMQ_USERNAME || !RABBITMQ_PASSWORD || !RABBITMQ_QUEU
 }
 
 class RabbitMQ {
-  private connection: Connection | null = null;
+  private channelModel: ChannelModel | null = null;
   private channel: Channel | null = null;
 
   async connect() {
     const url = `amqp://${RABBITMQ_USERNAME}:${RABBITMQ_PASSWORD}@${RABBITMQ_HOST}`;
-    this.connection = await amqplib.connect(url);
-    this.channel = await this.connection.createChannel();
+    this.channelModel = await amqplib.connect(url);
+    this.channel = await this.channelModel.createChannel();
     await this.channel.assertQueue(RABBITMQ_QUEUE!, { durable: true });
   }
 
@@ -29,7 +29,7 @@ class RabbitMQ {
 
   async disconnect() {
     if (this.channel) await this.channel.close();
-    if (this.connection) await this.connection.close();
+    if (this.channelModel) await this.channelModel.close();
   }
 }
 
