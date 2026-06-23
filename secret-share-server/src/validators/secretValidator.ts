@@ -9,7 +9,9 @@ export const validateSecret = async (
   next: NextFunction
 ) => {
   const { identifier } = req.params;
-  const { secretPassword } = req.query;
+  // Read secretPassword from header rather than query string to prevent
+  // sensitive values appearing in server access logs and browser history.
+  const secretPassword = req.headers["x-secret-password"];
 
   const saveAccessLog = async (
     accessGranted: boolean,
