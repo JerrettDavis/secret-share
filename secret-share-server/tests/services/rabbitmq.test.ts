@@ -1,10 +1,10 @@
-import amqplib, { Connection, Channel } from 'amqplib';
+import amqplib, { ChannelModel, Channel } from 'amqplib';
 import { rabbitMQ } from 'src/services/rabbitmq';
 
 jest.mock('amqplib');
 
 describe('RabbitMQ Service', () => {
-    let mockConnection: Connection;
+    let mockChannelModel: ChannelModel;
     let mockChannel: Channel;
 
     beforeEach(() => {
@@ -14,18 +14,18 @@ describe('RabbitMQ Service', () => {
             close: jest.fn(),
         } as unknown as Channel;
 
-        mockConnection = {
+        mockChannelModel = {
             createChannel: jest.fn().mockResolvedValue(mockChannel),
             close: jest.fn(),
-        } as unknown as Connection;
+        } as unknown as ChannelModel;
 
-        (amqplib.connect as jest.Mock).mockResolvedValue(mockConnection);
+        (amqplib.connect as jest.Mock).mockResolvedValue(mockChannelModel);
     });
 
     afterEach(() => {
         jest.clearAllMocks();
         // Reset the rabbitMQ instance to ensure it's not connected for the next test
-        (rabbitMQ as any).connection = null;
+        (rabbitMQ as any).channelModel = null;
         (rabbitMQ as any).channel = null;
     });
 
@@ -33,7 +33,7 @@ describe('RabbitMQ Service', () => {
         await rabbitMQ.connect();
 
         expect(amqplib.connect).toHaveBeenCalledWith(`amqp://${process.env.RABBITMQ_USERNAME}:${process.env.RABBITMQ_PASSWORD}@${process.env.RABBITMQ_HOST}`);
-        expect(mockConnection.createChannel).toHaveBeenCalled();
+        expect(mockChannelModel.createChannel).toHaveBeenCalled();
         expect(mockChannel.assertQueue).toHaveBeenCalledWith(process.env.RABBITMQ_QUEUE, { durable: true });
     });
 
@@ -53,6 +53,6 @@ describe('RabbitMQ Service', () => {
         await rabbitMQ.disconnect();
 
         expect(mockChannel.close).toHaveBeenCalled();
-        expect(mockConnection.close).toHaveBeenCalled();
+        expect(mockChannelModel.close).toHaveBeenCalled();
     });
 });
