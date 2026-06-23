@@ -18,6 +18,9 @@ updates:
       prefix: "chore(deps)"
     cooldown:
       default-days: 2
+    ignore:
+      - dependency-name: "uuid"
+        update-types: ["version-update:semver-major"]
     groups:
       npm-dependencies:
         patterns:
