@@ -100,7 +100,7 @@ describe('Secret Validator Middleware', () => {
         });
         await secret.save();
 
-        const res = await request(app).get('/test/password-id').query({ secretPassword: 'wrong-password' });
+        const res = await request(app).get('/test/password-id').set('x-secret-password', 'wrong-password');
         expect(res.status).toBe(403);
         expect(res.body.success).toBe(false);
         expect(res.body.error).toBe('Invalid secret password');
@@ -118,7 +118,7 @@ describe('Secret Validator Middleware', () => {
         });
         await secret.save();
 
-        const res = await request(app).get('/test/valid-id').query({ secretPassword: 'password' });
+        const res = await request(app).get('/test/valid-id').set('x-secret-password', 'password');
         expect(res.status).toBe(200);
         expect(res.body.success).toBe(true);
         expect(res.body.data.secret).toBe(secret.encryptedSecret);

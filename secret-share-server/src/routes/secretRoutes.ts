@@ -1,4 +1,5 @@
 import express, { Request, Response } from "express";
+import rateLimit from "express-rate-limit";
 import Secret from "@models/Secret";
 import { v4 as uuidv4 } from "uuid";
 import { SecretDefaults } from "@models/SecretDefaults";
@@ -13,6 +14,26 @@ import {
 import { validateSecret } from "../validators/secretValidator";
 
 const router = express.Router();
+
+// General rate limiter: 100 requests per 15 minutes per IP
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: "Too many requests, please try again later." },
+});
+
+// Strict rate limiter for sensitive endpoints (create/retrieve secrets): 20 per 15 minutes per IP
+const strictLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: "Too many requests, please try again later." },
+});
+
+router.use(generalLimiter);
 
 /**
  * @swagger
@@ -150,6 +171,7 @@ const router = express.Router();
  */
 router.post(
   "/",
+  strictLimiter,
   async (
     req: Request<{}, {}, ICreateSecretRequest>,
     res: Response<IApiResponse<ICreateSecretResponse>>
@@ -234,12 +256,12 @@ router.get(
  *           type: string
  *         required: true
  *         description: The identifier of the secret
- *       - in: query
- *         name: secretPassword
+ *       - in: header
+ *         name: x-secret-password
  *         schema:
  *           type: string
  *         required: false
- *         description: The secondary secret password
+ *         description: The secondary secret password (passed as a request header to avoid logging in server access logs)
  *     responses:
  *       200:
  *         description: Secret retrieved successfully
@@ -277,6 +299,7 @@ router.get(
  */
 router.get(
   "/:identifier",
+  strictLimiter,
   validateSecret,
   async (
     req: Request<{ identifier: string }, {}, any>,
