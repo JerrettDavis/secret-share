@@ -2,6 +2,7 @@ import request from 'supertest';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import Secret from 'src/models/Secret';
 import { validateSecret } from 'src/validators/secretValidator';
 
@@ -14,8 +15,10 @@ jest.mock('src/services/rabbitmq', () => ({
     },
 }));
 
+const testLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100, standardHeaders: true, legacyHeaders: false });
+
 app.use(express.json());
-app.get('/test/:identifier', validateSecret, (req, res) => {
+app.get('/test/:identifier', testLimiter, validateSecret, (req, res) => {
     res.status(200).send({ success: true, data: { secret: req.body.secret.encryptedSecret } });
 });
 
