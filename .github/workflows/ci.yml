@@ -26,7 +26,10 @@ jobs:
           cache-dependency-path: secret-share-client/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        # react-swipeable-button@1.6.5 declares a peer dep on react@^18 but the
+        # project uses react@19. The lockfile was generated with --legacy-peer-deps
+        # locally, so we replicate that here to keep CI consistent with the lockfile.
+        run: npm ci --legacy-peer-deps
 
       - name: Build
         run: npm run build
@@ -50,7 +53,10 @@ jobs:
           cache-dependency-path: secret-share-server/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        # inversify-express-utils@6.5.0 declares a peer dep on express@^4 but the
+        # project uses express@5. The lockfile was generated with --legacy-peer-deps
+        # locally, so we replicate that here to keep CI consistent with the lockfile.
+        run: npm ci --legacy-peer-deps
 
       - name: Build
         run: npm run build
