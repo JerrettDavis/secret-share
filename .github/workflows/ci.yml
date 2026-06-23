@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── Client (rsbuild/React/TS) ─────────────────────────────────────────────
+  client:
+    name: secret-share-client
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: secret-share-client
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: secret-share-client/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+  # ── Server (Express/TS/Jest) ──────────────────────────────────────────────
+  server:
+    name: secret-share-server
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: secret-share-server
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: secret-share-server/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+  # ── Mailer (TS, no tests) ─────────────────────────────────────────────────
+  mailer:
+    name: secret-share-mailer
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: secret-share-mailer
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: secret-share-mailer/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
