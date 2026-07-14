@@ -1,6 +1,5 @@
-import type {Config} from 'jest';
-
-const config: Config = {
+/** @type {import('jest').Config} */
+module.exports = {
     preset: 'ts-jest',
     testEnvironment: 'node',
     verbose: true,
@@ -15,12 +14,10 @@ const config: Config = {
         '^@middleware/(.*)$': '<rootDir>/src/middleware/$1',
         '^@config/(.*)$': '<rootDir>/src/config/$1',
     },
-    collectCoverage: true, // Enable coverage collection
-    coverageDirectory: 'coverage', // Directory where Jest should output its coverage files
+    collectCoverage: true,
+    coverageDirectory: 'coverage',
     collectCoverageFrom: [
-        'src/**/*.{ts,tsx}', // Specify the glob patterns Jest uses to detect test files
-        '!src/**/*.d.ts', // Ignore TypeScript declaration files
+        'src/**/*.{ts,tsx}',
+        '!src/**/*.d.ts',
     ],
 };
-
-export default config;
