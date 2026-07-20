@@ -21,11 +21,11 @@
     "theme-ui": "^0.17.4"
   },
   "devDependencies": {
-    "@rsbuild/core": "2.1.4",
+    "@rsbuild/core": "2.1.6",
     "@rsbuild/plugin-react": "2.1.0",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "openapi-typescript-codegen": "^0.31.0",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   }
 }
