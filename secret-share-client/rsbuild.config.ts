@@ -27,8 +27,15 @@ export default defineConfig({
     }
   },
   source: {
+    // Keep this map in lockstep with `compilerOptions.paths` in tsconfig.json —
+    // rsbuild resolves modules from here, tsc type-checks from there, and a
+    // mismatch breaks silently in exactly one of the two tools.
     alias: {
       '@components': './src/components',
+      '@features': './src/features',
+      '@hooks': './src/hooks',
+      '@lib': './src/lib',
+      '@api': './src/api',
       '@theme': './src/theme.ts',
       '@pages': './src/pages',
       '@generated': './generated'

@@ -1,0 +1,8 @@
+export type SecretErrorCode =
+  | 'NOT_FOUND'
+  | 'EXPIRED'
+  | 'VIEW_LIMIT_REACHED'
+  | 'IP_NOT_ALLOWED'
+  | 'PASSWORD_REQUIRED'
+  | 'INVALID_PASSWORD'
+  | 'SERVER_ERROR';

@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import rateLimit from "express-rate-limit";
+import { Types } from "mongoose";
 import Secret from "@models/Secret";
 import { v4 as uuidv4 } from "uuid";
 import { SecretDefaults } from "@models/SecretDefaults";
@@ -10,6 +11,7 @@ import {
   IGetSecretResponse,
   IDeleteSecretResponse,
   IGetSecretLogsResponse,
+  IGetSecretStatsResponse,
 } from "@models/responses";
 import { validateSecret } from "../validators/secretValidator";
 
@@ -91,6 +93,43 @@ router.use(generalLimiter);
  *             type: string
  *         requestBody:
  *           type: string
+ *     GetSecretStatsResponse:
+ *       type: object
+ *       properties:
+ *         reportedViews:
+ *           type: number
+ *         totalViews:
+ *           type: number
+ *         uniqueViews:
+ *           type: number
+ *         grantedAttempts:
+ *           type: number
+ *         refusedAttempts:
+ *           type: number
+ *         maxViews:
+ *           type: number
+ *           nullable: true
+ *           description: null indicates unlimited views
+ *         expirationDate:
+ *           type: string
+ *           format: date-time
+ *           nullable: true
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           nullable: true
+ *         hasPassword:
+ *           type: boolean
+ *         ipRestrictions:
+ *           type: array
+ *           items:
+ *             type: string
+ *         emailNotification:
+ *           type: string
+ *           nullable: true
+ *         status:
+ *           type: string
+ *           enum: [active, expired, exhausted]
  *   responses:
  *     SuccessResponse:
  *       type: object
@@ -188,7 +227,7 @@ router.post(
     const identifier = uuidv4().replace(/-/g, "").substring(0, 25);
     const creatorIdentifier = uuidv4().replace(/-/g, "").substring(0, 25);
     const secretDefaults = new SecretDefaults();
-    const ipRestrictionsSet = new Set(ipRestrictions.filter((ip) => !!ip));
+    const ipRestrictionsSet = new Set((ipRestrictions ?? []).filter((ip) => !!ip));
 
     // TODO: We should consider adding an additional encryption step to the encryptedSecret
     const password = new Secret({
@@ -430,9 +469,43 @@ router.get(
 );
 
 
+/**
+ * @swagger
+ * /api/secrets/stats/{creatorIdentifier}:
+ *   get:
+ *     summary: Get usage statistics for a secret
+ *     description: Retrieve dashboard-ready usage statistics for a secret by its creator identifier
+ *     tags: [Secrets]
+ *     parameters:
+ *       - in: path
+ *         name: creatorIdentifier
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The creator identifier of the secret
+ *     responses:
+ *       200:
+ *         description: Secret statistics retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/GetSecretStatsResponse'
+ *       404:
+ *         description: Secret not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/responses/NotFoundResponse'
+ */
 router.get(
     '/stats/:creatorIdentifier',
-    async (req: Request, res: Response) => {
+    async (req: Request, res: Response<IApiResponse<IGetSecretStatsResponse>>) => {
         const { creatorIdentifier } = req.params;
         const secret = await Secret.findOne({ creatorIdentifier });
 
@@ -440,13 +513,25 @@ router.get(
             return res.status(404).send({ success: false, error: 'Secret not found' });
         }
 
+        const logs = secret.accessLogs ?? [];
+        const maxViews = Number.isFinite(secret.maxViews) ? (secret.maxViews as number) : null;
+        const expired = !!secret.expirationDate && new Date(secret.expirationDate) < new Date();
+        const exhausted = maxViews !== null && (secret.currentViews ?? 0) >= maxViews;
 
-        const logs = secret.accessLogs || [];
-        const reportedViews = secret.currentViews;
-        const totalViews = logs.length;
-        const uniqueViews = new Set(logs.map(log => log.ipAddress)).size;
-
-        res.send({ success: true, data: { reportedViews, totalViews, uniqueViews } });
+        res.send({ success: true, data: {
+            reportedViews: secret.currentViews ?? 0,
+            totalViews: logs.length,
+            uniqueViews: new Set(logs.map(l => l.ipAddress)).size,
+            grantedAttempts: logs.filter(l => l.accessGranted).length,
+            refusedAttempts: logs.filter(l => !l.accessGranted).length,
+            maxViews,
+            expirationDate: secret.expirationDate ? new Date(secret.expirationDate).toISOString() : null,
+            createdAt: (secret._id as Types.ObjectId).getTimestamp().toISOString(),
+            hasPassword: !!secret.secretPassword,
+            ipRestrictions: secret.ipRestrictions ?? [],
+            emailNotification: secret.emailNotification ?? null,
+            status: expired ? 'expired' : exhausted ? 'exhausted' : 'active',
+        }});
     }
 )
 

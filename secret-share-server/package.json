@@ -7,7 +7,7 @@
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "generate-swagger": "tsc && node dist/generate-swagger.js",
+    "generate-swagger": "tsc && node dist/src/generate-swagger.js",
     "test": "jest",
     "prepare": "cd .. && husky secret-share-server/.husky"
   },

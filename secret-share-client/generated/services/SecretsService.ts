@@ -2,13 +2,14 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { GetSecretStatsResponse } from '../models/GetSecretStatsResponse';
 import type { ICreateSecretRequest } from '../models/ICreateSecretRequest';
 import type { ICreateSecretResponse } from '../models/ICreateSecretResponse';
 import type { ISecretAccessLog } from '../models/ISecretAccessLog';
 import type { SecretDefaults } from '../models/SecretDefaults';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
-export class DefaultService {
+export class SecretsService {
     constructor(public readonly httpRequest: BaseHttpRequest) {}
     /**
      * Create a new secret
@@ -49,13 +50,13 @@ export class DefaultService {
     /**
      * Retrieve a secret by its identifier
      * @param identifier The identifier of the secret
-     * @param secretPassword The secondary secret password
+     * @param xSecretPassword The secondary secret password (passed as a request header to avoid logging in server access logs)
      * @returns any Secret retrieved successfully
      * @throws ApiError
      */
     public getApiSecrets(
         identifier: string,
-        secretPassword?: string,
+        xSecretPassword?: string,
     ): CancelablePromise<{
         success?: boolean;
         data?: {
@@ -68,8 +69,8 @@ export class DefaultService {
             path: {
                 'identifier': identifier,
             },
-            query: {
-                'secretPassword': secretPassword,
+            headers: {
+                'x-secret-password': xSecretPassword,
             },
             errors: {
                 403: `Forbidden (expired, view limit reached, IP not allowed, or invalid secondary secret)`,
@@ -79,8 +80,9 @@ export class DefaultService {
         });
     }
     /**
-     * Delete a secret by its identifier
-     * @param identifier The identifier of the secret
+     * Delete a given secret
+     * Delete a secret by its creator identifier. This action is irreversible.
+     * @param identifier The creator identifier of the secret
      * @returns any Secret deleted successfully
      * @throws ApiError
      */
@@ -106,7 +108,8 @@ export class DefaultService {
     }
     /**
      * Get the access logs for a secret
-     * @param identifier The identifier of the secret
+     * Retrieve the access logs for a secret by its creator identifier
+     * @param identifier The creator identifier of the secret
      * @returns any Access logs retrieved successfully
      * @throws ApiError
      */
@@ -123,6 +126,30 @@ export class DefaultService {
             url: '/api/secrets/logs/{identifier}',
             path: {
                 'identifier': identifier,
+            },
+            errors: {
+                404: `Secret not found`,
+            },
+        });
+    }
+    /**
+     * Get usage statistics for a secret
+     * Retrieve dashboard-ready usage statistics for a secret by its creator identifier
+     * @param creatorIdentifier The creator identifier of the secret
+     * @returns any Secret statistics retrieved successfully
+     * @throws ApiError
+     */
+    public getApiSecretsStats(
+        creatorIdentifier: string,
+    ): CancelablePromise<{
+        success?: boolean;
+        data?: GetSecretStatsResponse;
+    }> {
+        return this.httpRequest.request({
+            method: 'GET',
+            url: '/api/secrets/stats/{creatorIdentifier}',
+            path: {
+                'creatorIdentifier': creatorIdentifier,
             },
             errors: {
                 404: `Secret not found`,

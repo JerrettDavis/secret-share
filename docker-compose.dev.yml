@@ -20,7 +20,8 @@ services:
       - PORT=5000
       - MONGO_URI=mongodb://mongo-dev:27017/secret-share
       - RABBITMQ_HOST=rabbitmq-dev
-      - CLIENT_ORIGN=http://localhost:5001
+      - CLIENT_ORIGIN=http://localhost:3000,http://localhost:5001
+      - TRUST_PROXY=1
     ports:
       - '5000:5000'
     volumes:

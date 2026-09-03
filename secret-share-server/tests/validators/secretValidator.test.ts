@@ -22,8 +22,12 @@ app.get('/test/:identifier', testLimiter, validateSecret, (req, res) => {
     res.status(200).send({ success: true, data: { secret: req.body.secret.encryptedSecret } });
 });
 
+// Slower CI/sandboxed environments can take longer than the library default
+// (10s) to spawn the in-memory mongod, so give it more headroom.
+jest.setTimeout(30000);
+
 beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
+    mongoServer = await MongoMemoryServer.create({ instance: { launchTimeout: 30000 } });
     const uri = mongoServer.getUri();
     await mongoose.connect(uri);
 });

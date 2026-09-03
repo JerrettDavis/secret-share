@@ -9,10 +9,19 @@ import { appState, ServiceState } from "src/appState";
 import errorMiddleware from "@middleware/errorMiddleware";
 import process from "node:process";
 const app: Application = express();
+if (process.env.TRUST_PROXY) app.set("trust proxy", Number(process.env.TRUST_PROXY));
+const defaultOrigins = [
+    "http://localhost:3000", // rsbuild dev
+    "http://localhost:5001", // docker dev
+    "http://localhost:8080", // docker prod via nginx
+];
+const allowedOrigins = process.env.CLIENT_ORIGIN
+    ? process.env.CLIENT_ORIGIN.split(",").map((origin) => origin.trim()).filter(Boolean)
+    : defaultOrigins;
 const corsOptions = {
-    origin: process.env.CLIENT_ORIGIN || "http://localhost:5001", // Replace with client's Docker hostname or IP
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "DELETE"], // Adjust based on your API's methods
-    allowedHeaders: ["Content-Type", "Authorization"], // Include any custom headers
+    allowedHeaders: ["Content-Type", "Authorization", "x-secret-password"], // Include any custom headers
     credentials: true, // Allow cookies if needed
 };
 app.use(cors(corsOptions));

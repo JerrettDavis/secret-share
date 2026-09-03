@@ -2,10 +2,14 @@ import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import Secret, { ISecret, SecretAccessLog } from 'src/models/Secret';
 
+// Slower CI/sandboxed environments can take longer than the library default
+// (10s) to spawn the in-memory mongod, so give it more headroom.
+jest.setTimeout(30000);
+
 let mongoServer: MongoMemoryServer;
 
 beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
+    mongoServer = await MongoMemoryServer.create({ instance: { launchTimeout: 30000 } });
     const uri = mongoServer.getUri();
     await mongoose.connect(uri);
 });

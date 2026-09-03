@@ -11,7 +11,10 @@ export const validateSecret = async (
   const { identifier } = req.params;
   // Read secretPassword from header rather than query string to prevent
   // sensitive values appearing in server access logs and browser history.
-  const secretPassword = req.headers["x-secret-password"];
+  const rawSecretPassword = req.headers["x-secret-password"];
+  const secretPassword = Array.isArray(rawSecretPassword)
+    ? rawSecretPassword[0]
+    : rawSecretPassword;
 
   const saveAccessLog = async (
     accessGranted: boolean,
@@ -57,13 +60,18 @@ export const validateSecret = async (
       await saveAccessLog(false);
       return res
         .status(404)
-        .send({ success: false, error: "Secret not found" });
+        .send({ success: false, error: "Secret not found", errorCode: "NOT_FOUND" });
     }
 
     // Check expiration
     if (secret.expirationDate && new Date(secret.expirationDate) < new Date()) {
       await saveAccessLog(false, secret);
-      return res.status(403).send({ success: false, error: "Secret expired" });
+      return res.status(403).send({
+        success: false,
+        error: "Secret expired",
+        errorCode: "EXPIRED",
+        details: { expiresAt: secret.expirationDate.toISOString() },
+      });
     }
 
     // Check view limit
@@ -71,7 +79,7 @@ export const validateSecret = async (
       await saveAccessLog(false, secret);
       return res
         .status(403)
-        .send({ success: false, error: "View limit reached" });
+        .send({ success: false, error: "View limit reached", errorCode: "VIEW_LIMIT_REACHED" });
     }
 
     // Check IP restriction
@@ -80,15 +88,28 @@ export const validateSecret = async (
       !secret.ipRestrictions!.includes(req.ip!)
     ) {
       await saveAccessLog(false, secret);
-      return res.status(403).send({ success: false, error: "IP not allowed" });
+      return res.status(403).send({
+        success: false,
+        error: "IP not allowed",
+        errorCode: "IP_NOT_ALLOWED",
+        details: { clientIp: req.ip ?? "unknown" },
+      });
     }
 
     // Check secondary secret
-    if (secret.secretPassword && secret.secretPassword !== secretPassword) {
-      await saveAccessLog(false, secret);
-      return res
-        .status(403)
-        .send({ success: false, error: "Invalid secret password" });
+    if (secret.secretPassword) {
+      if (!secretPassword) {
+        await saveAccessLog(false, secret);
+        return res
+          .status(403)
+          .send({ success: false, error: "Secret password required", errorCode: "PASSWORD_REQUIRED" });
+      }
+      if (secret.secretPassword !== secretPassword) {
+        await saveAccessLog(false, secret);
+        return res
+          .status(403)
+          .send({ success: false, error: "Invalid secret password", errorCode: "INVALID_PASSWORD" });
+      }
     }
 
     // If all validations pass, save a successful access log and attach the secret to the request
@@ -97,6 +118,6 @@ export const validateSecret = async (
     req.body.secret = secret;
     next();
   } catch (error: any) {
-    res.status(500).send({ success: false, error });
+    res.status(500).send({ success: false, error, errorCode: "SERVER_ERROR" });
   }
 };

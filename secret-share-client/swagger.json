@@ -1,20 +1,23 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Your API Title",
+    "title": "SecretShare API",
     "version": "1.0.0",
-    "description": "Your API description"
+    "description": "API for SecretShare"
   },
   "servers": [
     {
-      "url": "http://localhost:3000",
-      "description": "Development server"
+      "url": "http://localhost:5000",
+      "description": "API server"
     }
   ],
   "paths": {
     "/api/secrets/": {
       "post": {
         "summary": "Create a new secret",
+        "tags": [
+          "Secrets"
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -61,6 +64,9 @@
     "/api/secrets/defaults": {
       "get": {
         "summary": "Get the default settings for secrets",
+        "tags": [
+          "Secrets"
+        ],
         "responses": {
           "200": {
             "description": "Default secret settings retrieved successfully",
@@ -87,6 +93,9 @@
     "/api/secrets/{identifier}": {
       "get": {
         "summary": "Retrieve a secret by its identifier",
+        "tags": [
+          "Secrets"
+        ],
         "parameters": [
           {
             "in": "path",
@@ -98,13 +107,13 @@
             "description": "The identifier of the secret"
           },
           {
-            "in": "query",
-            "name": "secretPassword",
+            "in": "header",
+            "name": "x-secret-password",
             "schema": {
               "type": "string"
             },
             "required": false,
-            "description": "The secondary secret password"
+            "description": "The secondary secret password (passed as a request header to avoid logging in server access logs)"
           }
         ],
         "responses": {
@@ -165,7 +174,11 @@
         }
       },
       "delete": {
-        "summary": "Delete a secret by its identifier",
+        "summary": "Delete a given secret",
+        "description": "Delete a secret by its creator identifier. This action is irreversible.",
+        "tags": [
+          "Secrets"
+        ],
         "parameters": [
           {
             "in": "path",
@@ -174,7 +187,7 @@
               "type": "string"
             },
             "required": true,
-            "description": "The identifier of the secret"
+            "description": "The creator identifier of the secret"
           }
         ],
         "responses": {
@@ -228,6 +241,10 @@
     "/api/secrets/logs/{identifier}": {
       "get": {
         "summary": "Get the access logs for a secret",
+        "description": "Retrieve the access logs for a secret by its creator identifier",
+        "tags": [
+          "Secrets"
+        ],
         "parameters": [
           {
             "in": "path",
@@ -236,7 +253,7 @@
               "type": "string"
             },
             "required": true,
-            "description": "The identifier of the secret"
+            "description": "The creator identifier of the secret"
           }
         ],
         "responses": {
@@ -273,6 +290,182 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/responses/NotFoundResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/secrets/stats/{creatorIdentifier}": {
+      "get": {
+        "summary": "Get usage statistics for a secret",
+        "description": "Retrieve dashboard-ready usage statistics for a secret by its creator identifier",
+        "tags": [
+          "Secrets"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "creatorIdentifier",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The creator identifier of the secret"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Secret statistics retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/GetSecretStatsResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Secret not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/NotFoundResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Check the status of all services",
+        "description": "Returns the status of all services and indicates if all are running.",
+        "tags": [
+          "Health"
+        ],
+        "responses": {
+          "200": {
+            "description": "All services are running",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "services": {
+                      "type": "object",
+                      "properties": {
+                        "MongoConnection": {
+                          "type": "string",
+                          "enum": [
+                            "STARTING",
+                            "RUNNING",
+                            "STOPPING",
+                            "STOPPED",
+                            "ERROR",
+                            "UNKNOWN"
+                          ],
+                          "example": "RUNNING"
+                        },
+                        "RabbitMQConnection": {
+                          "type": "string",
+                          "enum": [
+                            "STARTING",
+                            "RUNNING",
+                            "STOPPING",
+                            "STOPPED",
+                            "ERROR",
+                            "UNKNOWN"
+                          ],
+                          "example": "RUNNING"
+                        },
+                        "ExpressServer": {
+                          "type": "string",
+                          "enum": [
+                            "STARTING",
+                            "RUNNING",
+                            "STOPPING",
+                            "STOPPED",
+                            "ERROR",
+                            "UNKNOWN"
+                          ],
+                          "example": "RUNNING"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Some or all services are not running",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "services": {
+                      "type": "object",
+                      "properties": {
+                        "MongoConnection": {
+                          "type": "string",
+                          "enum": [
+                            "STARTING",
+                            "RUNNING",
+                            "STOPPING",
+                            "STOPPED",
+                            "ERROR",
+                            "UNKNOWN"
+                          ],
+                          "example": "UNKNOWN"
+                        },
+                        "RabbitMQConnection": {
+                          "type": "string",
+                          "enum": [
+                            "STARTING",
+                            "RUNNING",
+                            "STOPPING",
+                            "STOPPED",
+                            "ERROR",
+                            "UNKNOWN"
+                          ],
+                          "example": "UNKNOWN"
+                        },
+                        "ExpressServer": {
+                          "type": "string",
+                          "enum": [
+                            "STARTING",
+                            "RUNNING",
+                            "STOPPING",
+                            "STOPPED",
+                            "ERROR",
+                            "UNKNOWN"
+                          ],
+                          "example": "UNKNOWN"
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -359,6 +552,62 @@
           },
           "requestBody": {
             "type": "string"
+          }
+        }
+      },
+      "GetSecretStatsResponse": {
+        "type": "object",
+        "properties": {
+          "reportedViews": {
+            "type": "number"
+          },
+          "totalViews": {
+            "type": "number"
+          },
+          "uniqueViews": {
+            "type": "number"
+          },
+          "grantedAttempts": {
+            "type": "number"
+          },
+          "refusedAttempts": {
+            "type": "number"
+          },
+          "maxViews": {
+            "type": "number",
+            "nullable": true,
+            "description": "null indicates unlimited views"
+          },
+          "expirationDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "hasPassword": {
+            "type": "boolean"
+          },
+          "ipRestrictions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "emailNotification": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "expired",
+              "exhausted"
+            ]
           }
         }
       }
