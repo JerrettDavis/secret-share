@@ -25,7 +25,7 @@
     "inversify": "^8.1.0",
     "inversify-express-utils": "^6.4.6",
     "mongoose": "^9.7.0",
-    "nodemailer": "^9.0.1",
+    "nodemailer": "^10.0.0",
     "reflect-metadata": "^0.2.2",
     "serve-favicon": "^2.5.0",
     "swagger-jsdoc": "^6.2.8",
