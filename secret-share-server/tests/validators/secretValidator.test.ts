@@ -24,10 +24,11 @@ app.get('/test/:identifier', testLimiter, validateSecret, (req, res) => {
 
 // Slower CI/sandboxed environments can take longer than the library default
 // (10s) to spawn the in-memory mongod, so give it more headroom.
-jest.setTimeout(30000);
+const MONGO_SETUP_TIMEOUT_MS = 120000;
+jest.setTimeout(MONGO_SETUP_TIMEOUT_MS);
 
 beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create({ instance: { launchTimeout: 30000 } });
+    mongoServer = await MongoMemoryServer.create({ instance: { launchTimeout: MONGO_SETUP_TIMEOUT_MS } });
     const uri = mongoServer.getUri();
     await mongoose.connect(uri);
 });

@@ -5,14 +5,15 @@ import {appState, ServiceState} from "src/appState";
 
 // Slower CI/sandboxed environments can take longer than the library default
 // (10s) to spawn the in-memory mongod, so give it more headroom.
-jest.setTimeout(30000);
+const MONGO_SETUP_TIMEOUT_MS = 120000;
+jest.setTimeout(MONGO_SETUP_TIMEOUT_MS);
 
 describe('Database Connection', () => {
     let mongoServer: MongoMemoryServer;
     const MONGO_URI = 'mongodb://localhost:27017/testdb';
 
     beforeAll(async () => {
-        mongoServer = await MongoMemoryServer.create({ instance: { launchTimeout: 30000 } });
+        mongoServer = await MongoMemoryServer.create({ instance: { launchTimeout: MONGO_SETUP_TIMEOUT_MS } });
         const uri = mongoServer.getUri();
         await connectToDatabase(uri);
     });
