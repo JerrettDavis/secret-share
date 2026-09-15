@@ -16,16 +16,16 @@
     "@fontsource-variable/jetbrains-mono": "^5.3.0",
     "@fontsource-variable/space-grotesk": "^5.3.0",
     "fflate": "^0.8.3",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
     "react-router-dom": "^7.18.3",
     "theme-ui": "^0.17.4"
   },
   "devDependencies": {
-    "@rsbuild/core": "2.2.3",
+    "@rsbuild/core": "2.2.5",
     "@rsbuild/plugin-react": "2.1.0",
-    "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.7",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "openapi-typescript-codegen": "^0.31.0",
     "typescript": "^7.0.2"
   }
