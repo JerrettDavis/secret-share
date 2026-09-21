@@ -19,7 +19,7 @@
     "base64url": "^3.0.1",
     "body-parser": "^2.2.2",
     "cors": "^2.8.5",
-    "dotenv": "^17.4.2",
+    "dotenv": "^18.0.1",
     "express": "^5.2.1",
     "express-rate-limit": "^8.5.2",
     "inversify": "^8.1.0",
