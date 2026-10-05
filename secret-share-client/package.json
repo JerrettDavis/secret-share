@@ -22,8 +22,8 @@
     "theme-ui": "^0.17.4"
   },
   "devDependencies": {
-    "@rsbuild/core": "2.2.9",
-    "@rsbuild/plugin-react": "2.1.0",
+    "@rsbuild/core": "2.2.11",
+    "@rsbuild/plugin-react": "2.1.1",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "openapi-typescript-codegen": "^0.31.0",
