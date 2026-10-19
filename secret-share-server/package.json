@@ -8,7 +8,7 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "generate-swagger": "tsc && node dist/src/generate-swagger.js",
-    "test": "jest",
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
     "prepare": "cd .. && husky secret-share-server/.husky"
   },
   "keywords": [],
